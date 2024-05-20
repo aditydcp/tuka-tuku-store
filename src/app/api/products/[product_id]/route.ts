@@ -1,5 +1,5 @@
 import { prisma } from "@/utils/configs/db";
-import { nullIfError } from "@/utils/functions";
+import { fileUploader, nullIfError } from "@/utils/functions";
 import { productSchema } from "@/utils/types/products";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -98,8 +98,12 @@ export async function PUT(request: NextRequest, context: Params) {
             category_id: +category_id!,
         };
 
-        // TODO: Upload image to cloudinary
-        dataToUpdate.image = undefined;
+        if (image) {
+            const uploadFile = await fileUploader(image, {
+                folder: "tuka-tuku-product",
+            })
+            dataToUpdate.image = uploadFile.data
+        }
 
         const data = await nullIfError(prisma.product.update)({
             where: {

@@ -1,4 +1,6 @@
+import { auth } from "@/auth";
 import { prisma } from "@/utils/configs/db";
+import { isNotLoggedIn } from "@/utils/functions";
 import { CategorySchema, categorySchema } from "@/utils/types/categories";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -26,9 +28,16 @@ export async function GET() {
     }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = auth(async function POST(request) {
     try {
-        // TODO: Protect this endpoint
+        if (isNotLoggedIn(request.auth, true)) {
+            return NextResponse.json({
+                message: "Not authenticated or unauthorized access",
+                method: "POST",
+                data: null,
+                error: "You are not authenticated or unauthorized to access this resource"
+            }, { status: 401 })
+        }
 
         const body = (await request.json()) as CategorySchema
         const { name } = body
@@ -71,4 +80,4 @@ export async function POST(request: NextRequest) {
             error: (error as Error).message,
         }, { status: 500 })
     }
-}
+})

@@ -1,6 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import { productSchema } from "@/utils/types/products";
 import { prisma } from "@/utils/configs/db";
+import { auth } from "@/auth";
+import { fileUploader, isNotLoggedIn } from "@/utils/functions";
 
 export async function GET(request: NextRequest) {
     try {
@@ -42,9 +44,16 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = auth(async function POST(request) {
     try {
-        // TODO: Protect this endpoint
+        if (isNotLoggedIn(request.auth, true)) {
+            return NextResponse.json({
+                message: "Not authenticated or unauthorized access",
+                method: "POST",
+                data: null,
+                error: "You are not authenticated or unauthorized to access this resource"
+            }, { status: 401 })
+        }
 
         const formData = await request.formData()
 
@@ -73,8 +82,13 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // TODO: Upload image to cloudinary
         let imageUrl = null
+        if (image) {
+            const uploadFile = await fileUploader(image, {
+                folder: "tuka-tuku-product",
+            })
+            imageUrl = uploadFile.data
+        }
 
         const data = await prisma.product.create({
             data: {
@@ -103,4 +117,4 @@ export async function POST(request: NextRequest) {
             error: (error as Error).message,
         }, { status: 500 })
     }
-}
+})
