@@ -9,3 +9,16 @@ export const nullIfError = <Func extends AnyFunction>(func: Func) =>
       return null
     }
   }
+
+export const isNotLoggedIn = (auth: Session | null, isAdmin: boolean = false) => {
+  if (isAdmin) {
+    if (auth) {
+      return auth.user?.role !== "admin"
+    }
+    return true
+  } else if (auth) {
+    return false
+  } else {
+    return true
+  }
+}
