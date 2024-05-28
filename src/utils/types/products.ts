@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { File } from "buffer"
+import { Product } from "@prisma/client"
 
 const MAX_MB = 2
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB
@@ -46,3 +47,9 @@ export const productSchema = z.object({
 })
 
 export type ProductSchema = z.infer<typeof productSchema>
+
+export interface ProductExtend extends Product {
+    category: {
+        name: string,
+    },
+}
