@@ -23,8 +23,8 @@ export const GET = async (request: NextRequest) => {
       message: "Successfully get users",
       method: "GET",
       meta: {
-        totalCount,
-        totalPages,
+        total_count: totalCount,
+        total_pages: totalPages,
       },
       data,
       error: null,
